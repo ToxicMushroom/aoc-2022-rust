@@ -1,18 +1,13 @@
-#![feature(core_panic)]
 extern crate core;
 
 use aoc::read;
-use core::panicking::panic;
 
 pub fn main() {
     let content = read("day2");
-    let (a1, a2) = content.lines().rfold((0, 0), |acc: (i32, i32), x: &str| {
-        let parts: Vec<&str> = x.split(" ").collect();
-        let opponent = parts[0];
-        let you = parts[1];
+    let (a1, a2) = content.lines().rfold((0, 0), |(acc1, acc2): (i32, i32), x: &str| {
+        let (opponent, you) = x.split_once(" ").unwrap();
         let points = get_points_q1(opponent, you);
         let points2 = get_points_q2(opponent, you);
-        let (acc1, acc2) = acc;
         (acc1 + points, acc2 + points2)
     });
 
@@ -27,7 +22,7 @@ fn get_points_q2(opponent: &str, your_result: &str) -> i32 {
         "X" => { (opponent_cp - 1).rem_euclid(3) },
         "Y" => 3 + opponent_cp,
         "Z" => 6 + (opponent_cp + 1).rem_euclid(3),
-        _ => panic("wrong input, expected X, Y or Z"),
+        _ => panic!("wrong input, expected X, Y or Z"),
     } + 1
 }
 
@@ -46,6 +41,6 @@ fn get_choice_points(you: &str) -> i32 {
         "A" | "X" => 0,
         "B" | "Y" => 1,
         "C" | "Z" => 2,
-        &_ => panic("wrong input, expected X, Y or Z"),
+        _ => panic!("wrong input, expected X, Y or Z"),
     }
 }
