@@ -1,7 +1,6 @@
 #![feature(slice_group_by)]
 
 use aoc::read;
-use std::num::ParseIntError;
 
 pub fn main() {
     let content = read("day1");
