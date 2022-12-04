@@ -1,13 +1,11 @@
-use std::ops::{Range};
 use aoc::read;
 
 fn main() {
     let content = read("day4");
     let (a1, a2) = content.lines().rfold((0, 0), |(mut acc1, mut acc2), line| {
         let (elve1, elve2) = line.split_once(',').unwrap();
-        let range1 = parse_range(elve1);
-        let range2 = parse_range(elve2);
-        if range1.envelops_or_enveloped(&range2) { acc1 += 1 };
+        let (range1, range2): (IntRange, IntRange) = (elve1.into(), elve2.into());
+        if range1.sub_or_superset(&range2) { acc1 += 1 };
         if range1.intersects_range(&range2) { acc2 += 1; };
         (acc1, acc2)
     });
@@ -15,24 +13,29 @@ fn main() {
     println!("{}", a2);
 }
 
-trait Comparing<R> {
-    fn envelops_or_enveloped(&self, range: &Range<R>) -> bool;
-    fn intersects_range(&self, range: &Range<R>) -> bool;
+/// Inclusive sane int-range implementation because rust's sucks
+struct IntRange {
+    pub start: i32,
+    pub end: i32,
 }
 
-impl Comparing<i32> for Range<i32> {
-    fn envelops_or_enveloped(&self, range: &Range<i32>) -> bool {
-        (self.contains(&range.start) && self.contains(&(&range.end - 1))) ||
-            (range.contains(&self.start) && range.contains(&(&self.end - 1)))
+impl IntRange {
+    fn contains(&self, i: &i32) -> bool { &self.start <= i && i <= &self.end }
+    fn contains_range(&self, range: &Self) -> bool { self.contains(&range.start) && self.contains(&range.end) }
+
+    fn sub_or_superset(&self, range: &IntRange) -> bool {
+        self.contains_range(range) || range.contains_range(self)
     }
 
-    fn intersects_range(&self, range: &Range<i32>) -> bool {
-        self.contains(&(&range.end - 1)) || self.contains(&range.start) ||
-            range.contains(&self.start) || range.contains(&(&self.end - 1))
+    fn intersects_range(&self, range: &IntRange) -> bool {
+        self.contains(&range.end) || self.contains(&range.start) ||
+            range.contains(&self.start) || range.contains(&self.end)
     }
 }
 
-fn parse_range(str: &str) -> Range<i32> {
-    let (start, end) = str.split_once('-').unwrap();
-    start.parse::<i32>().unwrap()..(end.parse::<i32>().unwrap() + 1)
+impl<S: AsRef<str>> From<S> for IntRange {
+    fn from(s: S) -> Self {
+        let (start, end) = s.as_ref().split_once('-').unwrap();
+        IntRange { start: start.parse::<i32>().unwrap(), end: (end.parse::<i32>().unwrap()) }
+    }
 }
