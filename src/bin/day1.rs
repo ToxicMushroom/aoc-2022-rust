@@ -11,7 +11,7 @@ pub fn main() {
     calories.sort_by(|el1, el2| el2.cmp(el1)); // reverse sort
 
     // take top 3 and top 1
-    let first_three: &[u32] = &calories[0..2];
+    let first_three: &[u32] = &calories[0..3];
     let a1 = first_three[0];
     let a2: u32 = first_three.iter().sum();
 
